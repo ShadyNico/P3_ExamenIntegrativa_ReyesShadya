@@ -1,0 +1,76 @@
+@model PaymentTransaction
+@inject IConfiguration Configuration
+@{
+    ViewData["Title"] = "Detalle del pago";
+    var allowManualConfirmation = Configuration.GetValue<bool>("Payments:AllowManualConfirmation");
+}
+
+<h1>Detalle del pago</h1>
+
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger">@error</div>
+}
+
+<dl class="row">
+    <dt class="col-sm-3">Orden</dt><dd class="col-sm-9">@Model.PurchaseOrderId</dd>
+    <dt class="col-sm-3">Pasarela</dt><dd class="col-sm-9">@Model.Provider</dd>
+    <dt class="col-sm-3">Estado</dt><dd class="col-sm-9">@Model.Status</dd>
+    <dt class="col-sm-3">Total</dt><dd class="col-sm-9">@((Model.AmountInCents / 100m).ToString("C"))</dd>
+    <dt class="col-sm-3">Transacción cliente</dt><dd class="col-sm-9">@Model.ClientTransactionId</dd>
+</dl>
+
+@if (Model.Provider == "PayPhone" && !string.IsNullOrWhiteSpace(Model.PayphonePaymentUrl))
+{
+    <a class="btn btn-success" href="@Model.PayphonePaymentUrl" target="_blank" rel="noopener noreferrer">
+        Abrir enlace de PayPhone
+    </a>
+}
+@if (Model.Provider == "PayPal" && Model.Status == "Pending" &&
+     !string.IsNullOrWhiteSpace(Model.PayPalApprovalUrl))
+{
+    <a class="btn btn-info" href="@Model.PayPalApprovalUrl" target="_blank" rel="noopener noreferrer">
+        Abrir PayPal Sandbox
+    </a>
+}
+
+@if (Model.Status == "Paid")
+{
+    <div class="alert alert-success mt-3">Pago confirmado correctamente.</div>
+}
+else if (Model.Status == "Cancelled")
+{
+    <div class="alert alert-warning mt-3">Pago cancelado.</div>
+}
+else if (Model.Status == "Failed")
+{
+    <div class="alert alert-danger mt-3">No se pudo generar o confirmar el pago.</div>
+}
+
+@if (User.IsInRole("Administrador") && allowManualConfirmation && Model.Status == "Pending")
+{
+    <form asp-action="MarkAsPaid" method="post" class="mt-3">
+        <input type="hidden" name="id" value="@Model.PaymentTransactionId" />
+        <button type="submit" class="btn btn-warning">Confirmación manual de demostración</button>
+    </form>
+}
+
+<h2 class="mt-4">Detalle de la orden</h2>
+<div class="table-responsive">
+    <table class="table table-bordered">
+        <thead>
+            <tr><th>Vuelo</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th></tr>
+        </thead>
+        <tbody>
+        @foreach (var detail in Model.PurchaseOrder.Details)
+        {
+            <tr>
+                <td>@detail.ItemTitleSnapshot</td>
+                <td>@detail.Quantity</td>
+                <td>@detail.UnitPrice.ToString("C")</td>
+                <td>@detail.Subtotal.ToString("C")</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

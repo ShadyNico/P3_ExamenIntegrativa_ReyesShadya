@@ -1,0 +1,54 @@
+@model IEnumerable<FlightStock>
+@{
+    ViewData["Title"] = "Tienda de vuelos";
+}
+
+<h1>Tienda de vuelos</h1>
+<p class="text-muted">Catálogo comercial construido a partir de vuelos reales de <code>airportdb.flight</code>.</p>
+
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger">@error</div>
+}
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">No hay vuelos disponibles en el catálogo.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+            <thead>
+                <tr>
+                    <th>Vuelo</th>
+                    <th>Precio</th>
+                    <th>Disponibles</th>
+                    <th>Comprar</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Title</td>
+                    <td>@item.UnitPrice.ToString("C")</td>
+                    <td>@item.Stock</td>
+                    <td>
+                        <form asp-action="AddToCart" method="post" class="d-flex gap-2">
+                            <input type="hidden" name="flightStockId" value="@item.FlightStockId" />
+                            <input type="number" name="quantity" value="1" min="1"
+                                   max="@Math.Min(item.Stock, 20)" class="form-control" style="width: 90px" />
+                            <button class="btn btn-primary" type="submit">Agregar</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    <partial name="_Pagination" />
+}
+
+<a class="btn btn-success mt-3" asp-action="Cart">Ver carrito</a>

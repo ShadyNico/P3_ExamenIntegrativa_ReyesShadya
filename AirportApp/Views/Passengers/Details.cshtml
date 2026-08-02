@@ -1,0 +1,10 @@
+@model Passenger
+@{ ViewData["Title"] = "Pasajero"; }
+<h1>@Model.FirstName @Model.LastName</h1>
+<dl class="row">
+    <dt class="col-sm-3">ID</dt><dd class="col-sm-9">@Model.PassengerId</dd>
+    <dt class="col-sm-3">Pasaporte</dt><dd class="col-sm-9">@Model.PassportNo.Trim()</dd>
+    <dt class="col-sm-3">Fecha de nacimiento</dt><dd class="col-sm-9">@(Model.Details?.BirthDate.ToString() ?? "Sin detalle")</dd>
+    <dt class="col-sm-3">Ciudad / país</dt><dd class="col-sm-9">@(Model.Details is null ? "Sin detalle" : $"{Model.Details.City}, {Model.Details.Country}")</dd>
+</dl>
+<a asp-action="Index" class="btn btn-outline-secondary">Volver</a>

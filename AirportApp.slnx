@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="AirportApp.Tests/AirportApp.Tests.csproj" />
+  <Project Path="AirportApp/AirportApp.csproj" />
+</Solution>

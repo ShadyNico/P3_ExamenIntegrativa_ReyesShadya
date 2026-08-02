@@ -1,0 +1,13 @@
+@model ReservationSummaryViewModel
+@{
+    ViewData["Title"] = "Confirmar reserva";
+}
+<partial name="_ServiceBookingSteps" model="5" />
+<div class="row justify-content-center"><div class="col-xl-9">
+    <div class="page-header"><div><h1>Revisa tu reserva</h1><p class="text-muted mb-0">La reserva permanece pendiente hasta que el pago sea aprobado.</p></div></div>
+    <partial name="_ReservationSummary" model="Model" />
+    <div class="d-flex flex-wrap justify-content-end gap-2 mt-4">
+        <form asp-action="Cancel" asp-route-id="@Model.ServiceReservationId" method="post" onsubmit="return confirm('¿Cancelar esta reserva pendiente?');"><button class="btn btn-outline-danger">Cancelar</button></form>
+        <a class="btn btn-primary btn-lg" asp-controller="Orders" asp-action="Details" asp-route-id="@Model.OrderId">Continuar al pago</a>
+    </div>
+</div></div>

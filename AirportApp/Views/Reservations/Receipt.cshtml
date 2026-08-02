@@ -1,0 +1,101 @@
+@model ReceiptViewModel
+@{
+    ViewData["Title"] = "Comprobante";
+    var approved = Model.PaymentStatus == SimulatedPaymentStatus.Approved;
+    var statusStyle = approved
+        ? "success"
+        : Model.PaymentStatus == SimulatedPaymentStatus.ReviewRequired ? "warning" : "danger";
+}
+<partial name="_ServiceBookingSteps" model="7" />
+<div class="row justify-content-center">
+    <div class="col-xl-9">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 no-print">
+            <div>
+                <h1 class="mb-1">@(approved ? "Reserva confirmada" : "Resultado del pago")</h1>
+                <p class="text-muted mb-0">
+                    @(approved
+                        ? "Tu servicio quedó reservado correctamente."
+                        : Model.PaymentStatus == SimulatedPaymentStatus.ReviewRequired
+                            ? "La pasarela respondió, pero la operación requiere revisión administrativa."
+                            : "La reserva continúa pendiente y puedes intentar otro pago.")
+                </p>
+            </div>
+            <button type="button" class="btn btn-outline-primary" onclick="window.print()">
+                Imprimir comprobante
+            </button>
+        </div>
+
+        <article class="receipt card border-0 shadow-sm">
+            <div class="card-body p-4 p-lg-5">
+                <div class="d-flex justify-content-between align-items-start border-bottom pb-4 mb-4">
+                    <div>
+                        <div class="h3 mb-1">AirportApp</div>
+                        <span class="text-muted">Servicios aeroportuarios</span>
+                    </div>
+                    <span class="badge text-bg-@statusStyle fs-6">@Model.PaymentStatus</span>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <h2 class="h6 text-uppercase text-muted">Referencias</h2>
+                        <dl class="row mb-0">
+                            <dt class="col-6">Reserva</dt><dd class="col-6">@Model.ReservationCode</dd>
+                            <dt class="col-6">Orden</dt><dd class="col-6">@Model.OrderNumber</dd>
+                            <dt class="col-6">Pago</dt><dd class="col-6">@Model.PaymentReference</dd>
+                            @if (Model.GatewayTransactionId is not null)
+                            {
+                                <dt class="col-6">Pasarela</dt><dd class="col-6">@Model.GatewayTransactionId</dd>
+                            }
+                            <dt class="col-6">Autorización</dt><dd class="col-6">@(Model.AuthorizationCode ?? "—")</dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-6">
+                        <h2 class="h6 text-uppercase text-muted">Cliente</h2>
+                        <p class="mb-1"><strong>@Model.CustomerName</strong></p>
+                        <p class="mb-0">@Model.CustomerEmail<br />@Model.CustomerPhone</p>
+                    </div>
+                    <div class="col-12"><hr /></div>
+                    <div class="col-md-7">
+                        <h2 class="h6 text-uppercase text-muted">Servicio</h2>
+                        <p class="mb-1"><strong>@Model.ServiceName</strong></p>
+                        <p class="mb-1">@Model.AirportName</p>
+                        <p class="mb-0">
+                            @Model.ReservationDate.ToString("dd/MM/yyyy") ·
+                            @Model.StartTime.ToString("HH:mm")–@Model.EndTime.ToString("HH:mm") ·
+                            @Model.Quantity unidades
+                        </p>
+                    </div>
+                    <div class="col-md-5">
+                        <h2 class="h6 text-uppercase text-muted">Pago</h2>
+                        <p class="mb-1">@Html.DisplayFor(item => item.PaymentMethod)</p>
+                        @if (Model.CardLastFourDigits is not null)
+                        {
+                            <p class="mb-1">Tarjeta terminada en @Model.CardLastFourDigits</p>
+                        }
+                        <p class="mb-0">@Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</p>
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+                <div class="row justify-content-end">
+                    <div class="col-md-6">
+                        <div class="d-flex justify-content-between"><span>Precio unitario</span><span>@Model.UnitPrice.ToString("C2")</span></div>
+                        <div class="d-flex justify-content-between"><span>Subtotal</span><span>@Model.Subtotal.ToString("C2")</span></div>
+                        <div class="d-flex justify-content-between"><span>IVA (15 %)</span><span>@Model.Tax.ToString("C2")</span></div>
+                        <div class="d-flex justify-content-between fs-5 fw-bold border-top mt-2 pt-2"><span>Total</span><span>@Model.Total.ToString("C2")</span></div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <div class="d-flex justify-content-end gap-2 mt-4 no-print">
+            <a class="btn btn-outline-secondary" asp-action="Index">Mis reservas</a>
+            @if (!approved && Model.PaymentStatus != SimulatedPaymentStatus.ReviewRequired)
+            {
+                <a class="btn btn-primary" asp-controller="Payments" asp-action="Process" asp-route-orderId="@Model.OrderId">
+                    Intentar otro pago
+                </a>
+            }
+        </div>
+    </div>
+</div>

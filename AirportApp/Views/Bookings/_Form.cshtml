@@ -1,0 +1,6 @@
+@model BookingFormViewModel
+<div asp-validation-summary="ModelOnly" class="text-danger"></div><input asp-for="BookingId" type="hidden" />
+<div class="mb-3"><label asp-for="FlightId" class="form-label"></label><input asp-for="FlightId" class="form-control" /><span asp-validation-for="FlightId" class="text-danger"></span></div>
+<div class="mb-3"><label asp-for="PassengerId" class="form-label"></label><input asp-for="PassengerId" class="form-control" /><span asp-validation-for="PassengerId" class="text-danger"></span></div>
+<div class="mb-3"><label asp-for="Seat" class="form-label"></label><input asp-for="Seat" class="form-control" maxlength="4" /><span asp-validation-for="Seat" class="text-danger"></span></div>
+<div class="mb-3"><label asp-for="Price" class="form-label"></label><input asp-for="Price" class="form-control" /><span asp-validation-for="Price" class="text-danger"></span></div>

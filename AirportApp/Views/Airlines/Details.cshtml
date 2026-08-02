@@ -1,0 +1,3 @@
+@model Airline
+@{ ViewData["Title"] = "Aerolínea"; }
+<h1>@(Model.AirlineName ?? Model.Iata)</h1><dl class="row"><dt class="col-sm-3">IATA</dt><dd class="col-sm-9">@Model.Iata.Trim()</dd><dt class="col-sm-3">Aeropuerto base</dt><dd class="col-sm-9">@(Model.BaseAirport?.Name ?? $"Referencia heredada ausente #{Model.BaseAirportId}")</dd></dl><a asp-action="Index" class="btn btn-outline-secondary">Volver</a>

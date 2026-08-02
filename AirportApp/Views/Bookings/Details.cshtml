@@ -1,0 +1,3 @@
+@model Booking
+@{ ViewData["Title"] = "Reserva"; }
+<h1>Reserva #@Model.BookingId</h1><dl class="row"><dt class="col-sm-3">Vuelo</dt><dd class="col-sm-9">@Model.Flight.FlightNo.Trim() · @Model.Flight.FromAirport.Icao.Trim() → @Model.Flight.ToAirport.Icao.Trim()</dd><dt class="col-sm-3">Pasajero</dt><dd class="col-sm-9">@Model.Passenger.FirstName @Model.Passenger.LastName</dd><dt class="col-sm-3">Asiento</dt><dd class="col-sm-9">@(Model.Seat?.Trim() ?? "Sin asignar")</dd><dt class="col-sm-3">Precio</dt><dd class="col-sm-9">@Model.Price.ToString("C")</dd></dl><a asp-action="Index" class="btn btn-outline-secondary">Volver</a>

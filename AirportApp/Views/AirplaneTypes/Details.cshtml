@@ -1,0 +1,3 @@
+@model AirplaneType
+@{ ViewData["Title"] = "Tipo de avión"; }
+<h1>@(Model.Identifier ?? $"Tipo #{Model.TypeId}")</h1><p>@Model.Description</p><a asp-action="Index" class="btn btn-outline-secondary">Volver</a>

@@ -1,0 +1,42 @@
+# Compilación y herramientas .NET
+**/bin/
+**/obj/
+**/TestResults/
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.log
+
+# Dependencias y resultados locales
+**/node_modules/
+publish/
+output/
+backups/
+.test-postgres/
+.docx_work/
+DataProtectionKeys/
+
+# Secretos y configuración privada
+.env
+.env.*
+!.env.example
+appsettings.Local.json
+appsettings.Production.json
+SECRETS.md
+SECRETOS.reales.md
+client_secret_*.json
+*.pfx
+*.p12
+*.key
+*.pem
+
+# Respaldos y archivos temporales
+*.tar
+*.dump
+*.backup
+~$*.docx
+~$*.xlsx
+~$*.pptx
+

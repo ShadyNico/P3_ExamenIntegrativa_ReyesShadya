@@ -1,0 +1,55 @@
+@{ 
+    var pagination = ViewData["Pagination"] as PaginationInfo
+        ?? new PaginationInfo { CurrentPage = 1, TotalPages = 1, PageSize = 10 };
+    var firstVisiblePage = Math.Max(1, pagination.CurrentPage - 2);
+    var lastVisiblePage = Math.Min(pagination.TotalPages, pagination.CurrentPage + 2);
+
+    string PageUrl(int page)
+    {
+        var routeValues = new Microsoft.AspNetCore.Routing.RouteValueDictionary();
+        foreach (var parameter in ViewContext.HttpContext.Request.Query)
+        {
+            if (!string.Equals(parameter.Key, "page", StringComparison.OrdinalIgnoreCase))
+            {
+                routeValues[parameter.Key] = parameter.Value.ToString();
+            }
+        }
+
+        routeValues["page"] = page;
+        return Url.Action("Index", routeValues) ?? "#";
+    }
+}
+
+<div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mt-3">
+    <span class="text-muted small">
+        Mostrando @pagination.FirstItem-@pagination.LastItem de @pagination.TotalItems registros
+    </span>
+
+    @if (pagination.TotalPages > 1)
+    {
+        <nav aria-label="Paginacion">
+            <ul class="pagination mb-0 flex-wrap">
+                <li class="page-item @(pagination.CurrentPage == 1 ? "disabled" : null)">
+                    <a class="page-link" href="@PageUrl(1)" aria-label="Primera">Primera</a>
+                </li>
+                <li class="page-item @(pagination.CurrentPage == 1 ? "disabled" : null)">
+                    <a class="page-link" href="@PageUrl(pagination.CurrentPage - 1)">Anterior</a>
+                </li>
+
+                @for (var pageNumber = firstVisiblePage; pageNumber <= lastVisiblePage; pageNumber++)
+                {
+                    <li class="page-item @(pageNumber == pagination.CurrentPage ? "active" : null)">
+                        <a class="page-link" href="@PageUrl(pageNumber)">@pageNumber</a>
+                    </li>
+                }
+
+                <li class="page-item @(pagination.CurrentPage == pagination.TotalPages ? "disabled" : null)">
+                    <a class="page-link" href="@PageUrl(pagination.CurrentPage + 1)">Siguiente</a>
+                </li>
+                <li class="page-item @(pagination.CurrentPage == pagination.TotalPages ? "disabled" : null)">
+                    <a class="page-link" href="@PageUrl(pagination.TotalPages)" aria-label="Ultima">Ultima</a>
+                </li>
+            </ul>
+        </nav>
+    }
+</div>

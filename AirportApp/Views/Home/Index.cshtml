@@ -1,0 +1,38 @@
+@{
+    ViewData["Title"] = "Inicio";
+}
+<section class="service-hero rounded-4 p-4 p-lg-5 mb-4 text-white">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-8">
+            <span class="badge text-bg-light text-primary mb-3">AirportApp Services</span>
+            <h1 class="display-5 fw-bold">Tu viaje comienza antes del embarque</h1>
+            <p class="lead mb-4">Reserva salas VIP, estacionamiento, asistencia y traslados con disponibilidad y precio confirmados en tiempo real.</p>
+            <a class="btn btn-light btn-lg" asp-controller="Airports" asp-action="Index">Comenzar reserva</a>
+            <a class="btn btn-outline-light btn-lg ms-sm-2 mt-2 mt-sm-0" asp-controller="Availability" asp-action="Index">Consultar disponibilidad</a>
+        </div>
+    </div>
+</section>
+<section aria-labelledby="services-title">
+    <div class="page-header"><h2 id="services-title">Servicios disponibles</h2></div>
+    <div class="row g-3">
+        @foreach (var service in new[]
+        {
+            ("Sala VIP", "Descanso, conectividad y refrigerios antes del vuelo."),
+            ("Estacionamiento", "Reserva tu espacio por día con anticipación."),
+            ("Transporte interno", "Movilidad coordinada dentro del aeropuerto."),
+            ("Asistencia prioritaria", "Acompañamiento ágil durante controles y embarque."),
+            ("Acompañamiento", "Apoyo personalizado para quien lo necesite."),
+            ("Traslado entre terminales", "Conexiones cómodas para pasajeros y equipaje.")
+        })
+        {
+            <div class="col-md-6 col-xl-4">
+                <article class="card h-100 border-0 shadow-sm service-card">
+                    <div class="card-body p-4">
+                        <h3 class="h5">@service.Item1</h3>
+                        <p class="text-muted mb-0">@service.Item2</p>
+                    </div>
+                </article>
+            </div>
+        }
+    </div>
+</section>

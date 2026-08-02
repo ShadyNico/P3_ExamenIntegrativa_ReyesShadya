@@ -1,0 +1,33 @@
+@model ReservationSummaryViewModel
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+        <div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
+            <div>
+                <div class="text-muted small">Código de reserva</div>
+                <strong>@Model.ReservationCode</strong>
+            </div>
+            <div class="text-end">
+                <div class="text-muted small">Orden</div>
+                <strong>@Model.OrderNumber</strong>
+            </div>
+        </div>
+        <dl class="row mb-0">
+            <dt class="col-sm-4">Aeropuerto</dt><dd class="col-sm-8">@Model.AirportName</dd>
+            <dt class="col-sm-4">Servicio</dt><dd class="col-sm-8">@Model.ServiceName</dd>
+            <dt class="col-sm-4">Cliente</dt><dd class="col-sm-8">@Model.CustomerName</dd>
+            <dt class="col-sm-4">Contacto</dt><dd class="col-sm-8">@Model.CustomerEmail · @Model.CustomerPhone</dd>
+            <dt class="col-sm-4">Fecha</dt><dd class="col-sm-8">@Model.ReservationDate.ToString("dd/MM/yyyy")</dd>
+            <dt class="col-sm-4">Horario</dt><dd class="col-sm-8">@Model.StartTime.ToString("HH:mm")–@Model.EndTime.ToString("HH:mm")</dd>
+            <dt class="col-sm-4">Cantidad</dt><dd class="col-sm-8">@Model.Quantity</dd>
+        </dl>
+        <hr />
+        <div class="row justify-content-end">
+            <div class="col-md-6 col-lg-5">
+                <div class="d-flex justify-content-between"><span>Precio unitario</span><span>@Model.UnitPrice.ToString("C2")</span></div>
+                <div class="d-flex justify-content-between"><span>Subtotal</span><span>@Model.Subtotal.ToString("C2")</span></div>
+                <div class="d-flex justify-content-between"><span>IVA (15 %)</span><span>@Model.Tax.ToString("C2")</span></div>
+                <div class="d-flex justify-content-between fs-5 fw-bold border-top pt-2 mt-2"><span>Total</span><span>@Model.Total.ToString("C2")</span></div>
+            </div>
+        </div>
+    </div>
+</div>

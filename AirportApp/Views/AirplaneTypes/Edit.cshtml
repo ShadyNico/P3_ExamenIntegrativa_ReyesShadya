@@ -1,0 +1,3 @@
+@model AirplaneType
+@{ ViewData["Title"] = "Editar tipo"; }
+<h1>Editar tipo de avión</h1><form asp-route-id="@Model.TypeId" method="post"><partial name="_Form" model="Model" /><button class="btn btn-primary">Guardar</button> <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a></form>

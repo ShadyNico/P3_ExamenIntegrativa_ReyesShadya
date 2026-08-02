@@ -1,0 +1,26 @@
+@model IReadOnlyList<AirportSelectionViewModel>
+@{
+    ViewData["Title"] = "Aeropuertos";
+}
+<partial name="_ServiceBookingSteps" model="1" />
+<div class="page-header">
+    <div>
+        <h1>Selecciona un aeropuerto</h1>
+        <p class="text-muted mb-0">Consulta los servicios disponibles en cada terminal.</p>
+    </div>
+</div>
+<div class="row g-4">
+    @foreach (var airport in Model)
+    {
+        <div class="col-md-6 col-xl-3">
+            <article class="card h-100 border-0 shadow-sm service-card">
+                <div class="card-body p-4 d-flex flex-column">
+                    <span class="airport-code mb-3">@airport.Iata</span>
+                    <h2 class="h5">@airport.Name</h2>
+                    <p class="text-muted">@airport.ActiveServiceCount servicios activos</p>
+                    <a class="btn btn-primary mt-auto" asp-action="Details" asp-route-id="@airport.AirportId">Ver servicios</a>
+                </div>
+            </article>
+        </div>
+    }
+</div>

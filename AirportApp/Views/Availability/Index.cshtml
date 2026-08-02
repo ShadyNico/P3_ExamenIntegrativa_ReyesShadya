@@ -1,0 +1,82 @@
+@model AvailabilitySearchViewModel
+@{
+    ViewData["Title"] = "Disponibilidad";
+}
+<partial name="_ServiceBookingSteps" model="3" />
+<div class="page-header">
+    <div><h1>Fecha y horario</h1><p class="text-muted mb-0">La capacidad mostrada se verifica nuevamente al reservar y al pagar.</p></div>
+</div>
+<form method="get" class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="row g-3 align-items-end">
+            <div class="col-lg-4">
+                <label asp-for="AirportId" class="form-label"></label>
+                <select asp-for="AirportId" asp-items="Model.Airports" class="form-select" id="airport-select"><option value="">Selecciona...</option></select>
+                <span asp-validation-for="AirportId" class="text-danger"></span>
+            </div>
+            <div class="col-lg-4">
+                <label asp-for="AirportServiceId" class="form-label"></label>
+                <select asp-for="AirportServiceId" asp-items="Model.Services" class="form-select" id="service-select"><option value="">Selecciona...</option></select>
+                <span asp-validation-for="AirportServiceId" class="text-danger"></span>
+            </div>
+            <div class="col-sm-7 col-lg-2">
+                <label asp-for="Date" class="form-label"></label>
+                <input asp-for="Date" class="form-control" min="@DateOnly.FromDateTime(DateTime.Today).ToString("yyyy-MM-dd")" />
+                <span asp-validation-for="Date" class="text-danger"></span>
+            </div>
+            <div class="col-sm-5 col-lg-2"><button class="btn btn-primary w-100">Buscar</button></div>
+        </div>
+    </div>
+</form>
+@if (Model.AirportServiceId.HasValue)
+{
+    if (Model.Results.Count == 0)
+    {
+        <div class="alert alert-warning">No existen horarios con capacidad para la fecha seleccionada.</div>
+    }
+    else
+    {
+        <div class="row g-3">
+            @foreach (var slot in Model.Results)
+            {
+                <div class="col-md-6 col-xl-4">
+                    <article class="card h-100 border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div><div class="text-muted small">@slot.AvailableDate.ToString("dddd, dd MMMM")</div><h2 class="h4 mt-1">@slot.StartTime.ToString("HH:mm")–@slot.EndTime.ToString("HH:mm")</h2></div>
+                                <span class="badge text-bg-success">@slot.AvailableCapacity disponibles</span>
+                            </div>
+                            <div class="progress my-3" role="progressbar" aria-label="Capacidad ocupada" aria-valuenow="@slot.ReservedCapacity" aria-valuemin="0" aria-valuemax="@slot.MaximumCapacity">
+                                <div class="progress-bar" style="width:@((slot.ReservedCapacity * 100) / slot.MaximumCapacity)%"></div>
+                            </div>
+                            @if (User.Identity?.IsAuthenticated == true)
+                            {
+                                <a class="btn btn-primary w-100" asp-controller="Reservations" asp-action="Create"
+                                   asp-route-serviceId="@Model.AirportServiceId" asp-route-availabilityId="@slot.ServiceAvailabilityId">Reservar este horario</a>
+                            }
+                            else
+                            {
+                                <a class="btn btn-primary w-100" asp-area="Identity" asp-page="/Account/Login"
+                                   asp-route-returnUrl="@Url.Action("Create", "Reservations", new { serviceId = Model.AirportServiceId, availabilityId = slot.ServiceAvailabilityId })">Inicia sesión para reservar</a>
+                            }
+                        </div>
+                    </article>
+                </div>
+            }
+        </div>
+    }
+}
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById('airport-select')?.addEventListener('change', async function () {
+            const serviceSelect = document.getElementById('service-select');
+            serviceSelect.innerHTML = '<option value="">Cargando...</option>';
+            if (!this.value) { serviceSelect.innerHTML = '<option value="">Selecciona...</option>'; return; }
+            const response = await fetch('@Url.Action("Services")?airportId=' + encodeURIComponent(this.value));
+            const services = await response.json();
+            serviceSelect.innerHTML = '<option value="">Selecciona...</option>' + services.map(item => `<option value="${item.id}">${item.name}</option>`).join('');
+        });
+    </script>
+}

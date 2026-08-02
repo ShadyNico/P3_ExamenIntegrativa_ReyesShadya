@@ -1,0 +1,11 @@
+@model CheckoutViewModel
+@{
+    ViewData["Title"] = "Orden de pago";
+}
+<partial name="_ServiceBookingSteps" model="5" />
+<div class="row justify-content-center"><div class="col-xl-9">
+    <div class="page-header"><div><h1>Orden de pago</h1><p class="text-muted mb-0">@Model.Notice</p></div></div>
+    <partial name="_ReservationSummary" model="Model.Summary" />
+    <div class="alert alert-info mt-3 mb-0">No cierres la página durante la simulación. La capacidad se valida nuevamente dentro de una transacción.</div>
+    <div class="text-end mt-4"><a class="btn btn-primary btn-lg" asp-controller="Payments" asp-action="Process" asp-route-orderId="@Model.Summary.OrderId">Elegir método de pago</a></div>
+</div></div>

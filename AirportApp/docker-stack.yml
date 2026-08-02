@@ -1,0 +1,136 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: airportapp
+      POSTGRES_USER: airportapp
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    secrets:
+      - postgres_password
+    volumes:
+      - postgres_data_v18:/var/lib/postgresql
+    networks:
+      - airportapp_overlay
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U airportapp -d airportapp"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.airportapp.postgres-data == true
+      restart_policy:
+        condition: on-failure
+      update_config:
+        order: stop-first
+        failure_action: rollback
+
+  airportapp:
+    image: "${AIRPORTAPP_IMAGE:-airportapp:latest}"
+    entrypoint:
+      - /bin/sh
+      - -ec
+      - >-
+        DB_PASSWORD="$$(cat /run/secrets/postgres_password)";
+        export ConnectionStrings__DomainConnection="Host=postgres;Port=5432;Database=airportapp;Username=airportapp;Password=$${DB_PASSWORD}";
+        export ConnectionStrings__ApplicationConnection="$${ConnectionStrings__DomainConnection}";
+        export EmailSettings__Password="$$(cat /run/secrets/email_password)";
+        export Authentication__Google__ClientId="$$(cat /run/secrets/google_client_id)";
+        export Authentication__Google__ClientSecret="$$(cat /run/secrets/google_client_secret)";
+        export PayPal__ClientId="$$(cat /run/secrets/paypal_client_id)";
+        export PayPal__ClientSecret="$$(cat /run/secrets/paypal_client_secret)";
+        export PayPhone__Token="$$(cat /run/secrets/payphone_token)";
+        export PayPhone__StoreId="$$(cat /run/secrets/payphone_store_id)";
+        export DataProtection__CertificatePath="/run/secrets/data_protection_certificate";
+        export DataProtection__CertificatePassword="$$(cat /run/secrets/data_protection_certificate_password)";
+        exec dotnet AirportApp.dll
+    ports:
+      - target: 8080
+        published: 5164
+        protocol: tcp
+        mode: ingress
+    environment:
+      ASPNETCORE_URLS: "http://+:8080"
+      ASPNETCORE_ENVIRONMENT: "Production"
+      Ollama__BaseUrl: "${OLLAMA_BASE_URL:-http://host.docker.internal:11434}"
+      Ollama__Model: "${OLLAMA_MODEL:-llama3.2:1b}"
+      EmailSettings__SmtpServer: "${EMAIL_SMTP_SERVER:-smtp.gmail.com}"
+      EmailSettings__SmtpPort: "${EMAIL_SMTP_PORT:-587}"
+      EmailSettings__SenderName: "${EMAIL_SENDER_NAME:-AirportApp}"
+      EmailSettings__SenderEmail: "${EMAIL_SENDER_EMAIL:-no-reply@example.invalid}"
+      PayPal__BaseUrl: "https://api-m.sandbox.paypal.com"
+      PayPal__ReturnUrl: "${PAYPAL_RETURN_URL:-http://localhost:5164/Payment/Success}"
+      PayPal__CancelUrl: "${PAYPAL_CANCEL_URL:-http://localhost:5164/Payment/Cancel}"
+      PayPal__CurrencyCode: "USD"
+    secrets:
+      - postgres_password
+      - email_password
+      - google_client_id
+      - google_client_secret
+      - paypal_client_id
+      - paypal_client_secret
+      - payphone_token
+      - payphone_store_id
+      - data_protection_certificate
+      - data_protection_certificate_password
+    volumes:
+      - airportapp_shared_keys:/app/DataProtectionKeys
+    networks:
+      - airportapp_overlay
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "--show-error", "--max-time", "10", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+    deploy:
+      replicas: 3
+      endpoint_mode: vip
+      placement:
+        preferences:
+          - spread: node.hostname
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+        failure_action: rollback
+      rollback_config:
+        parallelism: 1
+        order: stop-first
+
+networks:
+  airportapp_overlay:
+    driver: overlay
+    attachable: true
+
+volumes:
+  postgres_data_v18:
+  airportapp_shared_keys:
+    external: true
+
+secrets:
+  postgres_password:
+    external: true
+  email_password:
+    external: true
+  google_client_id:
+    external: true
+  google_client_secret:
+    external: true
+  paypal_client_id:
+    external: true
+  paypal_client_secret:
+    external: true
+  payphone_token:
+    external: true
+  payphone_store_id:
+    external: true
+  data_protection_certificate:
+    external: true
+  data_protection_certificate_password:
+    external: true

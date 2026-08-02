@@ -1,0 +1,10 @@
+@model AirportServiceFormViewModel
+@{ ViewData["Title"] = "Crear servicio"; }
+<div class="row justify-content-center"><div class="col-lg-9">
+    <div class="page-header"><h1>Crear servicio aeroportuario</h1></div>
+    <form method="post" class="card border-0 shadow-sm"><div class="card-body p-4">
+        <partial name="_Form" model="Model" />
+        <div class="d-flex gap-2 mt-4"><button class="btn btn-primary">Guardar</button><a class="btn btn-outline-secondary" asp-action="Index">Cancelar</a></div>
+    </div></form>
+</div></div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

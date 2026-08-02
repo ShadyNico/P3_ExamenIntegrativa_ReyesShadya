@@ -1,0 +1,5 @@
+@model Passenger
+@{ ViewData["Title"] = "Crear pasajero"; }
+<h1>Crear pasajero</h1>
+<form method="post"><partial name="_Form" model="Model" /><button class="btn btn-primary">Guardar</button> <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a></form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

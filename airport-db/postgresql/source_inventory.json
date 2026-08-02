@@ -1,0 +1,93 @@
+{
+  "sourceFormat": "MySQL Shell dump 1.0.2",
+  "fileCount": 39,
+  "totalRows": 59502421,
+  "compressedBytes": 656585096,
+  "uncompressedBytes": 2034301962,
+  "tables": {
+    "airline": {
+      "rows": 113,
+      "chunks": 1,
+      "compressedBytes": 1589,
+      "uncompressedBytes": 3158
+    },
+    "airplane": {
+      "rows": 5583,
+      "chunks": 1,
+      "compressedBytes": 24022,
+      "uncompressedBytes": 82258
+    },
+    "airplane_type": {
+      "rows": 342,
+      "chunks": 1,
+      "compressedBytes": 181412,
+      "uncompressedBytes": 461366
+    },
+    "airport": {
+      "rows": 9854,
+      "chunks": 1,
+      "compressedBytes": 142410,
+      "uncompressedBytes": 250014
+    },
+    "airport_geo": {
+      "rows": 9854,
+      "chunks": 1,
+      "compressedBytes": 408522,
+      "uncompressedBytes": 964758
+    },
+    "airport_reachable": {
+      "rows": 0,
+      "chunks": 1,
+      "compressedBytes": 9,
+      "uncompressedBytes": 0
+    },
+    "booking": {
+      "rows": 54304619,
+      "chunks": 25,
+      "compressedBytes": 602992775,
+      "uncompressedBytes": 1733524434
+    },
+    "employee": {
+      "rows": 1000,
+      "chunks": 1,
+      "compressedBytes": 89932,
+      "uncompressedBytes": 177645
+    },
+    "flight": {
+      "rows": 462553,
+      "chunks": 1,
+      "compressedBytes": 10133356,
+      "uncompressedBytes": 33336131
+    },
+    "flight_log": {
+      "rows": 0,
+      "chunks": 1,
+      "compressedBytes": 9,
+      "uncompressedBytes": 0
+    },
+    "flightschedule": {
+      "rows": 9881,
+      "chunks": 1,
+      "compressedBytes": 172016,
+      "uncompressedBytes": 517896
+    },
+    "passenger": {
+      "rows": 36095,
+      "chunks": 1,
+      "compressedBytes": 494930,
+      "uncompressedBytes": 999778
+    },
+    "passengerdetails": {
+      "rows": 36095,
+      "chunks": 1,
+      "compressedBytes": 1672340,
+      "uncompressedBytes": 3795407
+    },
+    "weatherdata": {
+      "rows": 4626432,
+      "chunks": 2,
+      "compressedBytes": 40271774,
+      "uncompressedBytes": 260189117
+    }
+  }
+}

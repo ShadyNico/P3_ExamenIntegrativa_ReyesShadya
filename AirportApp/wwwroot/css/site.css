@@ -1,0 +1,341 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  min-height: 100vh;
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  color: #212529;
+  background-color: #fff;
+}
+
+header {
+  flex: 0 0 auto;
+}
+
+.navbar {
+  min-height: 60px;
+}
+
+.navbar-brand {
+  font-weight: 600;
+}
+
+.airport-navbar .navbar-collapse {
+  min-width: 0;
+  gap: 0.75rem;
+}
+
+.airport-primary-nav {
+  min-width: 0;
+}
+
+.airport-account-nav {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.app-content {
+  flex: 1 0 auto;
+  width: 100%;
+  max-width: 1600px;
+  padding-top: 0.5rem;
+  padding-bottom: 2rem;
+}
+
+.footer {
+  flex: 0 0 auto;
+  padding: 1rem 0;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 1.75rem;
+}
+
+.filter-bar {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.app-table {
+  width: 100%;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+}
+
+.app-table .table {
+  margin-bottom: 0;
+}
+
+.app-table thead th {
+  white-space: nowrap;
+  background-color: #f8f9fa;
+  border-bottom-width: 1px;
+}
+
+.app-table td,
+.app-table th {
+  padding: 0.75rem;
+  vertical-align: middle;
+}
+
+.table-actions-cell {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.table-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.table-actions .btn {
+  white-space: nowrap;
+}
+
+.pagination {
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+main .form-group {
+  margin-bottom: 1rem;
+}
+
+main .form-group label {
+  margin-bottom: 0.375rem;
+}
+
+.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
+  color: var(--bs-secondary-color);
+  text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+  text-align: start;
+}
+
+@media (min-width: 1200px) {
+  .airport-primary-nav {
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+  }
+
+  .airport-primary-nav .nav-link {
+    padding-right: 0.55rem;
+    padding-left: 0.55rem;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 1199.98px) {
+  .navbar-collapse {
+    padding-top: 0.75rem;
+  }
+
+  .navbar-nav .nav-link {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+@media (max-width: 575.98px) {
+
+  .app-content {
+    padding-top: 0.25rem;
+  }
+
+  .page-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .page-header .btn {
+    width: 100%;
+  }
+
+  .app-table td,
+  .app-table th {
+    padding: 0.625rem;
+  }
+
+  .table-actions {
+    justify-content: flex-start;
+  }
+}
+
+.service-hero {
+  background:
+    radial-gradient(circle at 85% 20%, rgba(255, 255, 255, 0.22), transparent 30%),
+    linear-gradient(135deg, #0d6efd 0%, #063b8f 100%);
+}
+
+.service-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.service-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0.75rem 1.5rem rgba(13, 110, 253, 0.12) !important;
+}
+
+.airport-code {
+  display: inline-grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 1rem;
+  color: #0d6efd;
+  background: #e7f1ff;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.booking-steps {
+  overflow-x: auto;
+  padding-bottom: 0.35rem;
+}
+
+.booking-steps ol {
+  min-width: 720px;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+  list-style: none;
+  box-sizing: border-box;
+  padding: 0 1rem;
+  margin: 0;
+}
+
+.booking-steps li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  color: #6c757d;
+  text-align: center;
+}
+
+.booking-steps li::before {
+  position: absolute;
+  content: "";
+  top: 1rem;
+  right: 50%;
+  width: 100%;
+  height: 2px;
+  background: #dee2e6;
+  z-index: -1;
+}
+
+.booking-steps li:first-child::before {
+  display: none;
+}
+
+.booking-steps li > span {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 2px solid #ced4da;
+  background: #fff;
+  font-weight: 700;
+}
+
+.booking-steps li.completed > span,
+.booking-steps li.active > span {
+  color: #fff;
+  border-color: #0d6efd;
+  background: #0d6efd;
+}
+
+.booking-steps li.completed::before,
+.booking-steps li.active::before {
+  background: #0d6efd;
+}
+
+.booking-steps li.active small {
+  color: #0d6efd;
+  font-weight: 700;
+}
+
+.booking-steps li small {
+  max-width: 100%;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.service-payment-layout > * {
+  min-width: 0;
+}
+
+.payment-summary {
+  overflow: hidden;
+}
+
+.payment-summary-row {
+  gap: 1rem;
+}
+
+.payment-summary-row > :last-child {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.receipt {
+  border-top: 0.35rem solid #0d6efd !important;
+}
+
+@media print {
+  header,
+  footer,
+  .no-print,
+  .booking-steps,
+  .alert {
+    display: none !important;
+  }
+
+  body,
+  main,
+  .container-fluid {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  .receipt {
+    box-shadow: none !important;
+    border: 1px solid #dee2e6 !important;
+  }
+}

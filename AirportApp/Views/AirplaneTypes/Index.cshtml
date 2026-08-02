@@ -1,0 +1,5 @@
+@model IEnumerable<AirplaneType>
+@{ ViewData["Title"] = "Tipos de avión"; }
+<div class="d-flex justify-content-between align-items-center mb-3"><h1>Tipos de avión</h1><a asp-action="Create" class="btn btn-primary">Crear</a></div>
+@if (TempData["Error"] is string error) { <div class="alert alert-warning">@error</div> }
+<div class="table-responsive"><table class="table table-striped"><thead><tr><th>ID</th><th>Identificador</th><th>Descripción</th><th></th></tr></thead><tbody>@foreach (var item in Model) { <tr><td>@item.TypeId</td><td>@item.Identifier</td><td class="text-truncate" style="max-width:32rem">@item.Description</td><td class="text-end"><a asp-action="Details" asp-route-id="@item.TypeId" class="btn btn-sm btn-outline-info">Ver</a> <a asp-action="Edit" asp-route-id="@item.TypeId" class="btn btn-sm btn-outline-primary">Editar</a> <a asp-action="Delete" asp-route-id="@item.TypeId" class="btn btn-sm btn-outline-danger">Eliminar</a></td></tr> }</tbody></table></div><partial name="_Pagination" />

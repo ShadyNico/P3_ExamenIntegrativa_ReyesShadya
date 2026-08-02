@@ -1,0 +1,19 @@
+@model ReservationSummaryViewModel
+@{
+    ViewData["Title"] = "Detalle de reserva";
+    var reservationBadge = Model.ReservationStatus == ServiceReservationStatus.Confirmed ? "success" : Model.ReservationStatus == ServiceReservationStatus.Cancelled ? "secondary" : "warning";
+}
+<div class="row justify-content-center"><div class="col-xl-9">
+    <div class="page-header">
+        <div><a asp-action="Index" class="text-decoration-none">← Mis reservas</a><h1 class="mt-2">Detalle de reserva</h1></div>
+        <span class="badge text-bg-@reservationBadge fs-6">@Model.ReservationStatus</span>
+    </div>
+    <partial name="_ReservationSummary" model="Model" />
+    <div class="d-flex flex-wrap justify-content-end gap-2 mt-4">
+        @if (Model.ReservationStatus == ServiceReservationStatus.Pending)
+        {
+            <form asp-action="Cancel" asp-route-id="@Model.ServiceReservationId" method="post" onsubmit="return confirm('¿Cancelar esta reserva?');"><button class="btn btn-outline-danger">Cancelar</button></form>
+            <a class="btn btn-primary" asp-controller="Payments" asp-action="Process" asp-route-orderId="@Model.OrderId">Pagar ahora</a>
+        }
+    </div>
+</div></div>

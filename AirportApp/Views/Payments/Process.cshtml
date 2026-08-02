@@ -1,0 +1,258 @@
+@model PaymentViewModel
+@inject IConfiguration Configuration
+@{
+    ViewData["Title"] = "Pago de servicios";
+    var payPalClientId = Configuration["PayPal:ClientId"];
+    var payPhoneConfigured =
+        !string.IsNullOrWhiteSpace(Configuration["PayPhone:Token"]);
+    var currency = Configuration["PayPal:CurrencyCode"] ?? "USD";
+    var createPayPalUrl = Url.Action("CreatePayPalOrderJson", "Payments", new { orderId = Model.OrderId });
+    var capturePayPalUrl = Url.Action("CapturePayPalOrderJson", "Payments");
+    var startPayPhoneUrl = Url.Action("StartPayPhoneJson", "Payments", new { orderId = Model.OrderId });
+}
+<partial name="_ServiceBookingSteps" model="6" />
+<div class="row g-4 service-payment-layout">
+    <div class="col-lg-7">
+        <div class="page-header">
+            <div>
+                <h1>Elegir método de pago</h1>
+                <p class="text-muted mb-0">
+                    Puedes usar los métodos simulados o pagar mediante PayPal Sandbox y PayPhone.
+                </p>
+            </div>
+        </div>
+
+        <form method="post" class="card border-0 shadow-sm" autocomplete="off" id="service-payment-form">
+            <div class="card-body p-4">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                <div id="gateway-message" class="d-none" role="alert"></div>
+                <input asp-for="OrderId" type="hidden" />
+
+                <div class="mb-3">
+                    <label asp-for="PaymentMethod" class="form-label"></label>
+                    <select asp-for="PaymentMethod"
+                            asp-items="Html.GetEnumSelectList<SimulatedPaymentMethod>()"
+                            class="form-select"
+                            id="payment-method"></select>
+                </div>
+
+                <div id="card-fields">
+                    <div class="mb-3">
+                        <label asp-for="CardholderName" class="form-label"></label>
+                        <input asp-for="CardholderName" class="form-control" autocomplete="off" />
+                        <span asp-validation-for="CardholderName" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="CardNumber" class="form-label"></label>
+                        <input asp-for="CardNumber" class="form-control" inputmode="numeric" autocomplete="off" placeholder="4111 1111 1111 1111" />
+                        <span asp-validation-for="CardNumber" class="text-danger"></span>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-4">
+                            <label asp-for="ExpirationMonth" class="form-label"></label>
+                            <input asp-for="ExpirationMonth" class="form-control" inputmode="numeric" />
+                        </div>
+                        <div class="col-4">
+                            <label asp-for="ExpirationYear" class="form-label"></label>
+                            <input asp-for="ExpirationYear" class="form-control" inputmode="numeric" />
+                        </div>
+                        <div class="col-4">
+                            <label asp-for="Cvv" class="form-label"></label>
+                            <input asp-for="Cvv" class="form-control" type="password" inputmode="numeric" autocomplete="off" />
+                            <span asp-validation-for="Cvv" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="alert alert-light border small mt-3 mb-0">
+                        Prueba aprobada: <code>4111 1111 1111 1111</code>.
+                        Prueba rechazada: <code>4000 0000 0000 0002</code>.
+                        Usa cualquier CVV de 3 dígitos y una fecha futura.
+                    </div>
+                </div>
+
+                <div id="simulated-paypal-fields" class="d-none">
+                    <label asp-for="PayPalEmail" class="form-label"></label>
+                    <input asp-for="PayPalEmail" class="form-control" autocomplete="off" />
+                    <span asp-validation-for="PayPalEmail" class="text-danger"></span>
+                    <p class="small text-muted mt-2">
+                        Incluye <code>reject</code> en el correo para simular un rechazo.
+                    </p>
+                </div>
+
+                <div id="paypal-sandbox-fields" class="d-none">
+                    <div class="alert alert-info">
+                        PayPal se abrirá en ambiente Sandbox. Inicia sesión con una cuenta personal de prueba de PayPal.
+                    </div>
+                    @if (string.IsNullOrWhiteSpace(payPalClientId))
+                    {
+                        <div class="alert alert-danger mb-0">
+                            Falta configurar <code>PayPal:ClientId</code> mediante secretos.
+                        </div>
+                    }
+                    else
+                    {
+                        <div id="paypal-button-container" style="max-width: 480px;"></div>
+                    }
+                </div>
+
+                <div id="payphone-fields" class="d-none">
+                    <div class="alert alert-info">
+                        Se abrirá el formulario seguro de PayPhone, donde podrás pagar con tarjeta de crédito, débito o saldo PayPhone.
+                    </div>
+                    @if (payPhoneConfigured)
+                    {
+                        <button type="button" class="btn btn-success btn-lg w-100" id="payphone-button">
+                            Continuar a PayPhone
+                        </button>
+                        <div class="form-text mt-2">
+                            PayPhone mostrará el comprobante en su página. El pago permanecerá pendiente en AirportApp hasta su conciliación o notificación externa.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-danger mb-0">
+                            Falta configurar <code>PayPhone:Token</code> mediante secretos.
+                        </div>
+                    }
+                </div>
+
+                <button class="btn btn-primary btn-lg w-100 mt-4" id="simulated-payment-button">
+                    Procesar @Model.Checkout!.Summary.Total.ToString("C2")
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="col-lg-5">
+        <aside class="card border-0 bg-light payment-summary">
+            <div class="card-body p-4">
+                <h2 class="h5">Resumen</h2>
+                <p class="mb-1"><strong>@Model.Checkout!.Summary.ServiceName</strong></p>
+                <p class="text-muted small">
+                    @Model.Checkout.Summary.AirportName<br />
+                    @Model.Checkout.Summary.ReservationDate.ToString("dd/MM/yyyy") ·
+                    @Model.Checkout.Summary.StartTime.ToString("HH:mm")
+                </p>
+                <hr />
+                <div class="d-flex justify-content-between payment-summary-row"><span>Subtotal</span><span>@Model.Checkout.Summary.Subtotal.ToString("C2")</span></div>
+                <div class="d-flex justify-content-between payment-summary-row"><span>IVA (15 %)</span><span>@Model.Checkout.Summary.Tax.ToString("C2")</span></div>
+                <div class="d-flex justify-content-between fs-5 border-top mt-2 pt-2 payment-summary-row"><span>Total</span><strong>@Model.Checkout.Summary.Total.ToString("C2")</strong></div>
+            </div>
+        </aside>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    @if (!string.IsNullOrWhiteSpace(payPalClientId))
+    {
+        <script src="https://www.paypal.com/sdk/js?client-id=@Uri.EscapeDataString(payPalClientId)&currency=@Uri.EscapeDataString(currency)&intent=capture&components=buttons"></script>
+    }
+    <script>
+        (() => {
+            const method = document.getElementById("payment-method");
+            const cardFields = document.getElementById("card-fields");
+            const simulatedPayPalFields = document.getElementById("simulated-paypal-fields");
+            const payPalSandboxFields = document.getElementById("paypal-sandbox-fields");
+            const payPhoneFields = document.getElementById("payphone-fields");
+            const simulatedButton = document.getElementById("simulated-payment-button");
+            const payPhoneButton = document.getElementById("payphone-button");
+            const message = document.getElementById("gateway-message");
+            const token = document.querySelector('#service-payment-form input[name="__RequestVerificationToken"]').value;
+            const payPalSandboxValue = "@((int)SimulatedPaymentMethod.PayPalSandbox)";
+            const payPhoneValue = "@((int)SimulatedPaymentMethod.PayPhone)";
+            const simulatedPayPalValue = "@((int)SimulatedPaymentMethod.SimulatedPayPal)";
+            let payPalRendered = false;
+
+            const showMessage = (text, type = "danger") => {
+                message.className = `alert alert-${type}`;
+                message.textContent = text;
+            };
+
+            const post = async (url, body = null) => {
+                const headers = {
+                    "Accept": "application/json",
+                    "RequestVerificationToken": token
+                };
+                if (body !== null) {
+                    headers["Content-Type"] = "application/x-www-form-urlencoded;charset=UTF-8";
+                }
+
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers,
+                    body
+                });
+                const payload = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(payload.message || "No se pudo iniciar la pasarela de pago.");
+                }
+                return payload;
+            };
+
+            const renderPayPal = () => {
+                if (payPalRendered || typeof paypal === "undefined") {
+                    return;
+                }
+
+                payPalRendered = true;
+                paypal.Buttons({
+                    createOrder: async () => {
+                        const result = await post("@createPayPalUrl");
+                        if (!result.success || !result.orderId) {
+                            throw new Error(result.message || "PayPal no devolvió una orden.");
+                        }
+                        return result.orderId;
+                    },
+                    onApprove: async data => {
+                        const result = await post("@capturePayPalUrl?paypalOrderId=" + encodeURIComponent(data.orderID));
+                        if (result.redirectUrl) {
+                            window.location.href = result.redirectUrl;
+                            return;
+                        }
+                        throw new Error(result.message || "No se pudo confirmar el pago.");
+                    },
+                    onCancel: () => showMessage("El pago de PayPal fue cancelado.", "warning"),
+                    onError: error => showMessage(error?.message || "No fue posible procesar PayPal.")
+                }).render("#paypal-button-container");
+            };
+
+            const togglePaymentFields = () => {
+                const selected = method.value;
+                const isSimulatedPayPal = selected === simulatedPayPalValue;
+                const isPayPalSandbox = selected === payPalSandboxValue;
+                const isPayPhone = selected === payPhoneValue;
+                const isCard = !isSimulatedPayPal && !isPayPalSandbox && !isPayPhone;
+
+                cardFields.classList.toggle("d-none", !isCard);
+                simulatedPayPalFields.classList.toggle("d-none", !isSimulatedPayPal);
+                payPalSandboxFields.classList.toggle("d-none", !isPayPalSandbox);
+                payPhoneFields.classList.toggle("d-none", !isPayPhone);
+                simulatedButton.classList.toggle("d-none", isPayPalSandbox || isPayPhone);
+
+                if (isPayPalSandbox) {
+                    renderPayPal();
+                }
+
+            };
+
+            payPhoneButton?.addEventListener("click", async () => {
+                payPhoneButton.disabled = true;
+                try {
+                    showMessage("Generando el enlace seguro de PayPhone...", "info");
+                    const result = await post("@startPayPhoneUrl");
+                    if (!result.success || !result.redirectUrl) {
+                        throw new Error(result.message || "PayPhone no devolvió un enlace válido.");
+                    }
+                    showMessage(result.message, "info");
+                    window.location.assign(result.redirectUrl);
+                } catch (error) {
+                    showMessage(error.message || "No fue posible iniciar PayPhone.");
+                    payPhoneButton.disabled = false;
+                }
+            });
+
+            method?.addEventListener("change", togglePaymentFields);
+            togglePaymentFields();
+        })();
+    </script>
+}

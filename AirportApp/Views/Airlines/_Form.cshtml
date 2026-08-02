@@ -1,0 +1,5 @@
+@model Airline
+<div asp-validation-summary="ModelOnly" class="text-danger"></div><input asp-for="AirlineId" type="hidden" />
+<div class="mb-3"><label asp-for="Iata" class="form-label">IATA</label><input asp-for="Iata" maxlength="2" class="form-control" /><span asp-validation-for="Iata" class="text-danger"></span></div>
+<div class="mb-3"><label asp-for="AirlineName" class="form-label">Nombre</label><input asp-for="AirlineName" class="form-control" /><span asp-validation-for="AirlineName" class="text-danger"></span></div>
+<div class="mb-3"><label asp-for="BaseAirportId" class="form-label">Aeropuerto base</label><select asp-for="BaseAirportId" asp-items="@(ViewData["BaseAirportId"] as SelectList)" class="form-select"><option value="">Seleccione</option></select><span asp-validation-for="BaseAirportId" class="text-danger"></span></div>

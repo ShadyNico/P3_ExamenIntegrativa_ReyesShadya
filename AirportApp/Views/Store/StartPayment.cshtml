@@ -1,0 +1,15 @@
+@model PaymentStartViewModel
+@{
+    ViewData["Title"] = "Iniciar pago";
+    var action = Model.Provider == "PayPal" ? "CreatePayPalOrder" : "CreateLink";
+}
+
+<h1>Orden creada</h1>
+<p>La orden <strong>#@Model.OrderId</strong> está lista para iniciar el pago con @Model.Provider.</p>
+<p class="text-muted">La pasarela solo se contactará al confirmar esta operación.</p>
+
+<form asp-controller="Payment" asp-action="@action" method="post">
+    <input type="hidden" name="orderId" value="@Model.OrderId" />
+    <button type="submit" class="btn btn-primary">Continuar a @Model.Provider</button>
+    <a asp-action="Index" class="btn btn-outline-secondary">Volver a la tienda</a>
+</form>

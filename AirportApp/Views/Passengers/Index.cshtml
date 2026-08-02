@@ -1,0 +1,41 @@
+@model IEnumerable<Passenger>
+@{ ViewData["Title"] = "Pasajeros"; }
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Pasajeros</h1>
+    @if (User.IsInRole("Administrador") || User.IsInRole("Operador"))
+    {
+        <a asp-action="Create" class="btn btn-primary">Crear pasajero</a>
+    }
+</div>
+@if (TempData["Error"] is string error) { <div class="alert alert-warning">@error</div> }
+<form method="get" class="d-flex gap-2 mb-3">
+    <input name="buscar" value="@ViewData["Buscar"]" class="form-control" placeholder="Nombre o pasaporte" />
+    <button class="btn btn-primary">Buscar</button>
+</form>
+<div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead><tr><th>ID</th><th>Pasaporte</th><th>Nombre</th><th class="text-end">Acciones</th></tr></thead>
+        <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.PassengerId</td>
+                <td>@item.PassportNo.Trim()</td>
+                <td>@item.LastName, @item.FirstName</td>
+                <td class="text-end">
+                    <a asp-action="Details" asp-route-id="@item.PassengerId" class="btn btn-sm btn-outline-info">Ver</a>
+                    @if (User.IsInRole("Administrador") || User.IsInRole("Supervisor"))
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.PassengerId" class="btn btn-sm btn-outline-primary">Editar</a>
+                    }
+                    @if (User.IsInRole("Administrador"))
+                    {
+                        <a asp-action="Delete" asp-route-id="@item.PassengerId" class="btn btn-sm btn-outline-danger">Eliminar</a>
+                    }
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+@if (ViewData["Pagination"] is not null) { <partial name="_Pagination" /> }

@@ -1,0 +1,5 @@
+@model Passenger
+@{ ViewData["Title"] = "Eliminar pasajero"; }
+<h1>Eliminar pasajero</h1>
+<p>¿Eliminar a <strong>@Model.FirstName @Model.LastName</strong>?</p>
+<form asp-route-id="@Model.PassengerId" method="post"><button class="btn btn-danger">Eliminar</button> <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a></form>

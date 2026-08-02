@@ -1,0 +1,34 @@
+@model IReadOnlyList<ReservationSummaryViewModel>
+@{ ViewData["Title"] = "Mis reservas de servicios"; }
+<div class="page-header">
+    <div><h1>Mis reservas de servicios</h1><p class="text-muted mb-0">Historial de reservas, órdenes y estados de pago.</p></div>
+    <a class="btn btn-primary" asp-controller="Airports" asp-action="Index">Nueva reserva</a>
+</div>
+@if (Model.Count == 0)
+{
+    <div class="alert alert-info">Todavía no tienes reservas de servicios aeroportuarios.</div>
+}
+else
+{
+    <div class="app-table table-responsive">
+        <table class="table align-middle">
+            <thead><tr><th>Código</th><th>Servicio</th><th>Fecha</th><th>Total</th><th>Reserva</th><th>Orden</th><th></th></tr></thead>
+            <tbody>
+            @foreach (var item in Model)
+            {
+                var reservationBadge = item.ReservationStatus == ServiceReservationStatus.Confirmed ? "success" : item.ReservationStatus == ServiceReservationStatus.Cancelled ? "secondary" : "warning";
+                var orderBadge = item.OrderStatus == ServiceOrderStatus.Paid ? "success" : item.OrderStatus == ServiceOrderStatus.Cancelled ? "secondary" : "warning";
+                <tr>
+                    <td><strong>@item.ReservationCode</strong><div class="small text-muted">@item.OrderNumber</div></td>
+                    <td>@item.ServiceName<div class="small text-muted">@item.AirportName</div></td>
+                    <td>@item.ReservationDate.ToString("dd/MM/yyyy")<div class="small text-muted">@item.StartTime.ToString("HH:mm")</div></td>
+                    <td>@item.Total.ToString("C2")</td>
+                    <td><span class="badge text-bg-@reservationBadge">@item.ReservationStatus</span></td>
+                    <td><span class="badge text-bg-@orderBadge">@item.OrderStatus</span></td>
+                    <td><a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@item.ServiceReservationId">Ver</a></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}

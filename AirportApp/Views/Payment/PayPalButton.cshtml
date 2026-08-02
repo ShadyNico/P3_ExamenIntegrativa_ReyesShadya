@@ -1,0 +1,87 @@
+@model PurchaseOrder
+@inject IConfiguration Configuration
+@{
+    ViewData["Title"] = "Pago con PayPal";
+    var clientId = Configuration["PayPal:ClientId"];
+    var currency = Configuration["PayPal:CurrencyCode"] ?? "USD";
+    var createUrl = Url.Action("CreatePayPalButtonOrderJson", "Payment", new { orderId = Model.PurchaseOrderId });
+    var captureUrl = Url.Action("CapturePayPalButtonOrderJson", "Payment");
+}
+
+<h1>Pago con PayPal Sandbox</h1>
+<p><strong>Orden:</strong> @Model.PurchaseOrderId</p>
+<p><strong>Total:</strong> @Model.Total.ToString("C")</p>
+<p><strong>Estado:</strong> @Model.Status</p>
+
+<form id="antiForgeryForm" class="d-none">@Html.AntiForgeryToken()</form>
+
+@if (string.IsNullOrWhiteSpace(clientId))
+{
+    <div class="alert alert-danger">Falta configurar el identificador público de PayPal.</div>
+}
+else
+{
+    <div id="paypal-button-container" style="max-width: 480px;"></div>
+    <div id="paypal-message" class="mt-3"></div>
+}
+
+<h2>Detalle de la orden</h2>
+<div class="table-responsive">
+    <table class="table table-bordered">
+        <thead><tr><th>Vuelo</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th></tr></thead>
+        <tbody>
+        @foreach (var detail in Model.Details)
+        {
+            <tr>
+                <td>@detail.ItemTitleSnapshot</td>
+                <td>@detail.Quantity</td>
+                <td>@detail.UnitPrice.ToString("C")</td>
+                <td>@detail.Subtotal.ToString("C")</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    @if (!string.IsNullOrWhiteSpace(clientId))
+    {
+        <script src="https://www.paypal.com/sdk/js?client-id=@Uri.EscapeDataString(clientId)&currency=@Uri.EscapeDataString(currency)&intent=capture&components=buttons"></script>
+        <script>
+            (() => {
+                const message = document.getElementById("paypal-message");
+                const token = document.querySelector('#antiForgeryForm input[name="__RequestVerificationToken"]').value;
+                const post = async url => {
+                    const response = await fetch(url, {
+                        method: "POST",
+                        headers: {
+                            "Accept": "application/json",
+                            "RequestVerificationToken": token
+                        }
+                    });
+                    const payload = await response.json().catch(() => ({}));
+                    if (!response.ok || !payload.success) {
+                        throw new Error(payload.message || "No se pudo procesar PayPal.");
+                    }
+                    return payload;
+                };
+
+                paypal.Buttons({
+                    createOrder: async () => (await post("@createUrl")).orderId,
+                    onApprove: async data => {
+                        const result = await post("@captureUrl?paypalOrderId=" + encodeURIComponent(data.orderID));
+                        window.location.href = result.redirectUrl;
+                    },
+                    onCancel: () => {
+                        message.className = "alert alert-warning mt-3";
+                        message.textContent = "Pago cancelado en PayPal.";
+                    },
+                    onError: () => {
+                        message.className = "alert alert-danger mt-3";
+                        message.textContent = "No fue posible procesar el pago.";
+                    }
+                }).render("#paypal-button-container");
+            })();
+        </script>
+    }
+}

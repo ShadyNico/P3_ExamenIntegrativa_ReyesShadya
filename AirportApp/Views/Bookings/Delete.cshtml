@@ -1,0 +1,3 @@
+@model Booking
+@{ ViewData["Title"] = "Eliminar reserva"; }
+<h1>Eliminar reserva</h1><p>¿Eliminar la reserva <strong>#@Model.BookingId</strong>?</p><form asp-route-id="@Model.BookingId" method="post"><button class="btn btn-danger">Eliminar</button> <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a></form>

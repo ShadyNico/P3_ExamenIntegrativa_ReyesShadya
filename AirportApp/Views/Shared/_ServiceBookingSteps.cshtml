@@ -1,0 +1,17 @@
+@model int
+@{
+    string[] steps = ["Aeropuerto", "Servicio", "Fecha y horario", "Datos del cliente", "Resumen", "Pago", "Confirmación"];
+}
+<nav class="booking-steps mb-4" aria-label="Progreso de la reserva">
+    <ol>
+        @for (var index = 0; index < steps.Length; index++)
+        {
+            var number = index + 1;
+            var css = number < Model ? "completed" : number == Model ? "active" : string.Empty;
+            <li class="@css" aria-current="@(number == Model ? "step" : null)">
+                <span>@number</span>
+                <small>@steps[index]</small>
+            </li>
+        }
+    </ol>
+</nav>

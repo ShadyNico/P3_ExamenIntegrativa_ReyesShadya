@@ -1,0 +1,9 @@
+@model Flight
+@{ ViewData["Title"] = "Eliminar vuelo"; }
+<h1>Eliminar vuelo</h1>
+<div class="alert alert-danger">Esta operación solo funcionará si el vuelo no tiene reservas ni registros relacionados.</div>
+<p>¿Eliminar <strong>@Model.FlightNo.Trim()</strong> (@Model.FromAirport.Icao.Trim() → @Model.ToAirport.Icao.Trim())?</p>
+<form asp-action="Delete" asp-route-id="@Model.FlightId" method="post">
+    <button class="btn btn-danger">Eliminar</button>
+    <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+</form>

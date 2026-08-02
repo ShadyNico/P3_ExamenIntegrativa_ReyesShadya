@@ -1,0 +1,53 @@
+@model IEnumerable<FlightStock>
+@{
+    ViewData["Title"] = "Inventario";
+}
+
+<h1>Inventario comercial de vuelos</h1>
+<p class="text-muted">La tienda inicializa el catálogo desde los vuelos de Airport DB. Este panel administra las existencias locales.</p>
+
+<form asp-action="Inicializar" method="post" class="mb-3">
+    <button type="submit" class="btn btn-outline-primary">Inicializar desde Airport DB</button>
+</form>
+
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger">@error</div>
+}
+@if (TempData["Message"] is string message)
+{
+    <div class="alert alert-success">@message</div>
+}
+
+<div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Vuelo</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Aumentar stock</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Title</td>
+                <td>@item.UnitPrice.ToString("C")</td>
+                <td>@item.Stock</td>
+                <td>
+                    <form asp-action="AumentarStock" method="post" class="d-flex gap-2">
+                        <input type="hidden" name="id" value="@item.FlightStockId" />
+                        <input type="number" name="quantity" value="1" min="1" max="1000"
+                               class="form-control" style="width: 100px" />
+                        <button type="submit" class="btn btn-success">Aumentar</button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+<partial name="_Pagination" />

@@ -1,0 +1,98 @@
+@{
+    ViewData["Title"] = "Asistente IA de vuelos";
+}
+
+<div class="row justify-content-center py-3">
+    <div class="col-12 col-xl-9">
+        <h1>Asistente IA de vuelos</h1>
+        <p class="text-muted">Describe el viaje que buscas y el asistente local preparará una recomendación breve.</p>
+
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <form id="assistantForm" novalidate>
+                    <div class="mb-3">
+                        <label for="consulta" class="form-label fw-semibold">Preferencias del viaje</label>
+                        <textarea id="consulta" class="form-control" rows="5" maxlength="1000"
+                                  placeholder="Ejemplo: Busco un vuelo corto entre aeropuertos europeos."
+                                  aria-describedby="consultaHelp consultaError"></textarea>
+                        <div id="consultaHelp" class="form-text">
+                            La consulta se procesa localmente con Ollama; verifica datos reales en el catálogo.
+                        </div>
+                        <div id="consultaError" class="invalid-feedback">
+                            Escribe tus preferencias antes de continuar.
+                        </div>
+                    </div>
+                    <button id="submitButton" type="submit" class="btn btn-primary">
+                        <span id="loadingIndicator" class="spinner-border spinner-border-sm me-2 d-none"
+                              aria-hidden="true"></span>
+                        <span id="buttonText">Generar recomendación</span>
+                    </button>
+                </form>
+                <div id="statusMessage" class="alert mt-4 mb-0 d-none" role="alert"></div>
+                <section id="responsePanel" class="mt-4 d-none" aria-live="polite">
+                    <h2 class="h5">Recomendación</h2>
+                    <div class="border rounded bg-light p-3">
+                        <p id="responseText" class="mb-2" style="white-space: pre-wrap;"></p>
+                        <small class="text-muted">Modelo: <span id="modelName"></span></small>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const form = document.getElementById("assistantForm");
+            const consulta = document.getElementById("consulta");
+            const submitButton = document.getElementById("submitButton");
+            const loadingIndicator = document.getElementById("loadingIndicator");
+            const buttonText = document.getElementById("buttonText");
+            const statusMessage = document.getElementById("statusMessage");
+            const responsePanel = document.getElementById("responsePanel");
+
+            const showStatus = (message, type) => {
+                statusMessage.textContent = message;
+                statusMessage.className = `alert alert-${type} mt-4 mb-0`;
+            };
+
+            form.addEventListener("submit", async event => {
+                event.preventDefault();
+                const query = consulta.value.trim();
+                responsePanel.classList.add("d-none");
+                if (!query) {
+                    consulta.classList.add("is-invalid");
+                    showStatus("Escribe tus preferencias antes de continuar.", "warning");
+                    return;
+                }
+
+                consulta.classList.remove("is-invalid");
+                submitButton.disabled = true;
+                loadingIndicator.classList.remove("d-none");
+                buttonText.textContent = "Generando...";
+                try {
+                    const response = await fetch("@Url.Content("~/api/ia/generar")", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ consulta: query })
+                    });
+                    const data = await response.json().catch(() => ({}));
+                    if (!response.ok) {
+                        throw new Error(data.mensaje ?? "No fue posible generar la recomendación.");
+                    }
+                    document.getElementById("responseText").textContent = data.respuesta;
+                    document.getElementById("modelName").textContent = data.modelo;
+                    responsePanel.classList.remove("d-none");
+                    showStatus("Recomendación generada.", "success");
+                } catch (error) {
+                    showStatus(error instanceof Error ? error.message : "No fue posible conectar.", "danger");
+                } finally {
+                    submitButton.disabled = false;
+                    loadingIndicator.classList.add("d-none");
+                    buttonText.textContent = "Generar recomendación";
+                }
+            });
+        })();
+    </script>
+}

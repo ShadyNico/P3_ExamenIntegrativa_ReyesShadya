@@ -1,0 +1,67 @@
+@model IEnumerable<ShoppingCartItem>
+@{
+    ViewData["Title"] = "Carrito";
+}
+
+<h1>Carrito</h1>
+
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger">@error</div>
+}
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">El carrito está vacío.</div>
+    <a class="btn btn-primary" asp-action="Index">Ir a la tienda</a>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Vuelo</th>
+                    <th>Cantidad</th>
+                    <th>Precio</th>
+                    <th>Subtotal</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.FlightStock.Title</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.FlightStock.UnitPrice.ToString("C")</td>
+                    <td>@((item.Quantity * item.FlightStock.UnitPrice).ToString("C"))</td>
+                    <td>
+                        <form asp-action="RemoveFromCart" method="post">
+                            <input type="hidden" name="id" value="@item.ShoppingCartItemId" />
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Quitar</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    <h3>Total: @Model.Sum(item => item.Quantity * item.FlightStock.UnitPrice).ToString("C")</h3>
+
+    <div class="d-flex flex-wrap gap-2">
+        <form asp-action="Checkout" method="post">
+            <input type="hidden" name="provider" value="PayPhone" />
+            <button class="btn btn-primary" type="submit">Pagar con PayPhone</button>
+        </form>
+        <form asp-action="Checkout" method="post">
+            <input type="hidden" name="provider" value="PayPal" />
+            <button class="btn btn-info" type="submit">Pagar con PayPal Sandbox</button>
+        </form>
+        <form asp-action="Checkout" method="post">
+            <input type="hidden" name="provider" value="PayPalButton" />
+            <button class="btn btn-dark" type="submit">Botón PayPal / tarjeta Sandbox</button>
+        </form>
+    </div>
+}

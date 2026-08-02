@@ -1,0 +1,13 @@
+@model Flight
+@{ ViewData["Title"] = "Detalle del vuelo"; }
+<h1>Vuelo @Model.FlightNo.Trim()</h1>
+<dl class="row">
+    <dt class="col-sm-3">ID</dt><dd class="col-sm-9">@Model.FlightId</dd>
+    <dt class="col-sm-3">Ruta</dt><dd class="col-sm-9">@Model.FromAirport.Name → @Model.ToAirport.Name</dd>
+    <dt class="col-sm-3">Salida</dt><dd class="col-sm-9">@Model.Departure.ToString("F")</dd>
+    <dt class="col-sm-3">Llegada</dt><dd class="col-sm-9">@Model.Arrival.ToString("F")</dd>
+    <dt class="col-sm-3">Duración</dt><dd class="col-sm-9">@Math.Round(Model.Duration.TotalMinutes) minutos</dd>
+    <dt class="col-sm-3">Aerolínea</dt><dd class="col-sm-9">@(Model.Airline.AirlineName ?? Model.Airline.Iata)</dd>
+    <dt class="col-sm-3">Avión</dt><dd class="col-sm-9">#@Model.AirplaneId · @(Model.Airplane.Type.Identifier ?? "Sin tipo")</dd>
+</dl>
+<a asp-action="Index" class="btn btn-outline-secondary">Volver</a>

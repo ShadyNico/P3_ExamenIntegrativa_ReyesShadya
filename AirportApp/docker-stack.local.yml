@@ -1,0 +1,102 @@
+services:
+  airportapp:
+    image: airportapp:cluster-local
+    entrypoint:
+      - /bin/sh
+      - -ec
+      - >-
+        export ConnectionStrings__DomainConnection="$$(cat /run/secrets/airportapp_domain_connection_v2)";
+        export ConnectionStrings__ApplicationConnection="$$(cat /run/secrets/airportapp_application_connection_v2)";
+        export EmailSettings__Password="$$(cat /run/secrets/airportapp_email_password_v2)";
+        export Authentication__Google__ClientId="$$(cat /run/secrets/airportapp_google_client_id_v2)";
+        export Authentication__Google__ClientSecret="$$(cat /run/secrets/airportapp_google_client_secret_v2)";
+        export PayPal__ClientId="$$(cat /run/secrets/airportapp_paypal_client_id_v2)";
+        export PayPal__ClientSecret="$$(cat /run/secrets/airportapp_paypal_client_secret_v2)";
+        export PayPhone__Token="$$(cat /run/secrets/airportapp_payphone_token_v2)";
+        export PayPhone__StoreId="$$(cat /run/secrets/airportapp_payphone_store_id_v2)";
+        exec dotnet AirportApp.dll
+    ports:
+      - target: 8080
+        published: 5164
+        protocol: tcp
+        mode: ingress
+    environment:
+      ASPNETCORE_URLS: "http://+:8080"
+      ASPNETCORE_ENVIRONMENT: "Production"
+      Ollama__BaseUrl: "http://host.docker.internal:11434"
+      Ollama__Model: "llama3.2:1b"
+      EmailSettings__SmtpServer: "smtp.gmail.com"
+      EmailSettings__SmtpPort: "587"
+      EmailSettings__SenderName: "AirportApp"
+      EmailSettings__SenderEmail: "snreyes2@espe.edu.ec"
+      PayPal__BaseUrl: "https://api-m.sandbox.paypal.com"
+      PayPal__ReturnUrl: "http://localhost:5164/Payment/Success"
+      PayPal__CancelUrl: "http://localhost:5164/Payment/Cancel"
+      PayPal__CurrencyCode: "USD"
+    secrets:
+      - airportapp_domain_connection_v2
+      - airportapp_application_connection_v2
+      - airportapp_email_password_v2
+      - airportapp_google_client_id_v2
+      - airportapp_google_client_secret_v2
+      - airportapp_paypal_client_id_v2
+      - airportapp_paypal_client_secret_v2
+      - airportapp_payphone_token_v2
+      - airportapp_payphone_store_id_v2
+    volumes:
+      - airportapp_cluster_keys:/app/DataProtectionKeys
+    networks:
+      - airportapp_cluster_overlay
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "--show-error", "--max-time", "10", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      replicas: 3
+      endpoint_mode: vip
+      placement:
+        preferences:
+          - spread: node.hostname
+      restart_policy:
+        condition: any
+        delay: 3s
+        window: 30s
+      update_config:
+        parallelism: 1
+        delay: 5s
+        order: start-first
+        failure_action: rollback
+      rollback_config:
+        parallelism: 1
+        order: stop-first
+
+networks:
+  airportapp_cluster_overlay:
+    driver: overlay
+    attachable: true
+
+volumes:
+  airportapp_cluster_keys:
+    external: true
+
+secrets:
+  airportapp_domain_connection_v2:
+    external: true
+  airportapp_application_connection_v2:
+    external: true
+  airportapp_email_password_v2:
+    external: true
+  airportapp_google_client_id_v2:
+    external: true
+  airportapp_google_client_secret_v2:
+    external: true
+  airportapp_paypal_client_id_v2:
+    external: true
+  airportapp_paypal_client_secret_v2:
+    external: true
+  airportapp_payphone_token_v2:
+    external: true
+  airportapp_payphone_store_id_v2:
+    external: true
